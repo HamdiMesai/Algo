@@ -1,0 +1,81 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+// Function to load a string and return a pointer to it
+char* LoadString(int N) {
+    char* str = (char*)malloc((N + 1) * sizeof(char));
+    if (str != NULL) {
+        printf("Enter a string (max %d characters): ", N);
+        fgets(str, N + 1, stdin);
+        str[strcspn(str, "\n")] = '\0'; // Remove newline character
+    }
+    return str;
+}
+
+// Function to compute the length of a string
+int StringLength(char* str) {
+    return strlen(str);
+}
+
+// Function to load a string into a character array
+void LoadArray(char* arr, int N) {
+    printf("Enter %d characters: ", N);
+    for (int i = 0; i < N; i++) {
+        arr[i] = getchar();
+    }
+    getchar(); // To consume the newline character left in the buffer
+}
+
+// Function to reverse an array
+void ReverseArray(char arr[], int n) {
+    for (int i = 0; i < n / 2; i++) {
+        char temp = arr[i];
+        arr[i] = arr[n - i - 1];
+        arr[n - i - 1] = temp;
+    }
+}
+
+// Recursive function to reverse a string
+void ReverseString(char* start, char* end) {
+    if (start >= end) return;
+    char temp = *start;
+    *start = *end;
+    *end = temp;
+    ReverseString(start + 1, end - 1);
+}
+
+// Main program to test the functions
+int main() {
+    // Test LoadString and StringLength
+    char* myString = LoadString(100);
+    printf("Loaded string: %s\n", myString);
+    printf("Length of string: %d\n", StringLength(myString));
+
+    // Test LoadArray and ReverseArray
+    int N = 5;
+    char arr[5];
+    LoadArray(arr, N);
+    printf("Loaded array: ");
+    for (int i = 0; i < N; i++) {
+        printf("%c ", arr[i]);
+    }
+    printf("\n");
+    ReverseArray(arr, N);
+    printf("Reversed array: ");
+    for (int i = 0; i < N; i++) {
+        printf("%c ", arr[i]);
+    }
+    printf("\n");
+
+    // Test ReverseString
+    char strToReverse[] = "Hello";
+    printf("Original string: %s\n", strToReverse);
+    ReverseString(strToReverse, strToReverse + strlen(strToReverse) - 1);
+    printf("Reversed string: %s\n", strToReverse);
+
+    // Free allocated memory
+    free(myString);
+
+    return 0;
+}
