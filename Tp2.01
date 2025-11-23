@@ -1,81 +1,104 @@
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
+#include <stdlib.h>
 
-// Function to load a string and return a pointer to it
-char* LoadString(int N) {
-    char* str = (char*)malloc((N + 1) * sizeof(char));
-    if (str != NULL) {
-        printf("Enter a string (max %d characters): ", N);
-        fgets(str, N + 1, stdin);
-        str[strcspn(str, "\n")] = '\0'; // Remove newline character
+char *LoadString(int N); //ترجع مؤشر من سلسلة تحتوي على عدد الاحرف المقروءة
+int StringLength(char *str);//تحسب طول السلسلة
+void LoadArray(char *p, char arr[]);//تنسخ السلسلة من المؤشر الى المصفوفة 
+void ReverseArray(char arr[], char rev[], int n);// عكس ترتيب الاحرف في المصفوفة ةتضعها في rev
+void DisplayArray(char arr[], int n);//تطبع محتوى المصفوفة على شاشة
+int SumStringASCII(char *p);//تحسب مجموه القيم في السلسلة
+void ReverseString(char *start, char *end);//تعكس السسلة النصية نفسها باستخدام المؤشر داخل نفس المشر
+char *LoadString(int N) {
+    char *str = (char *)malloc((N + 1) * sizeof(char)); // حجز مكان لذكرة مع +1 للحرف النهائي \0'
+    if (str == NULL) {
+        printf("\n لا يوجد مساحة في الذاكرة.\n");
+       return NULL;
     }
+    printf("\n enter a text message:");
+    fgets(str, N + 1, stdin); // قراءة السلسلة من المستخدم
     return str;
 }
 
-// Function to compute the length of a string
-int StringLength(char* str) {
-    return strlen(str);
-}
-
-// Function to load a string into a character array
-void LoadArray(char* arr, int N) {
-    printf("Enter %d characters: ", N);
-    for (int i = 0; i < N; i++) {
-        arr[i] = getchar();
+ int StringLength(char *str){  /* تحسب طول السلسلة  */
+    int len = 0;
+    while (str[len] != '\0') {
+        len++;
     }
-    getchar(); // To consume the newline character left in the buffer
+    return len;
 }
 
-// Function to reverse an array
-void ReverseArray(char arr[], int n) {
-    for (int i = 0; i < n / 2; i++) {
-        char temp = arr[i];
-        arr[i] = arr[n - i - 1];
-        arr[n - i - 1] = temp;
+void LoadArray(char *p, char arr[]) {/* تنسخ السلسلة من الؤشر الى المصفوفة*/
+    int i = 0;
+    while (p[i] != '\0') {
+        arr[i] = p[i];
+        i++;
     }
+    arr[i] = '\0'; // إنهاء السلسلة
 }
 
-// Recursive function to reverse a string
-void ReverseString(char* start, char* end) {
+void ReverseArray(char arr[], char rev[], int n) {/* تعكس محتوى المصفوفة وتحفظه في rev*/
+    for (int i = 0; i < n; i++) {
+        rev[i] = arr[n - 1 - i];
+    }
+    rev[n] = '\0'; // إنهاء السلسلة
+}
+
+void DisplayArray(char arr[], int n) {/*تطبع محتوى المصفوفة*/
+    for (int i = 0; i < n; i++) {
+        printf("%c", arr[i]);
+    }
+    printf("\n");
+}
+
+int SumStringASCII(char *p) {/* تحسب مجموع قيم ASCII لكل حرف في السلسلة باستخدام recursion*/
+    if (*p == '\0') {
+        return 0;
+    }
+    return (int)(*p) + SumStringASCII(p + 1);
+}
+
+void ReverseString(char *start, char *end) {   /* and يشير الى اخر حرفstart الى اول حرف*/
     if (start >= end) return;
+
+    // تبديل الحرفين
     char temp = *start;
     *start = *end;
     *end = temp;
-    ReverseString(start + 1, end - 1);
+    
+ /*واحد يزيد واحد ينقص*///تعكس السسلة النصية نفسها باستخدام المؤشر داخل نفس المشر
+    // استدعاء الدالة بشكل متكرر
+    ReverseString(start + 1, end - 1); 
 }
 
-// Main program to test the functions
 int main() {
-    // Test LoadString and StringLength
-    char* myString = LoadString(100);
-    printf("Loaded string: %s\n", myString);
-    printf("Length of string: %d\n", StringLength(myString));
+    char *str;
+    int n;
 
-    // Test LoadArray and ReverseArray
-    int N = 5;
-    char arr[5];
-    LoadArray(arr, N);
-    printf("Loaded array: ");
-    for (int i = 0; i < N; i++) {
-        printf("%c ", arr[i]);
-    }
-    printf("\n");
-    ReverseArray(arr, N);
-    printf("Reversed array: ");
-    for (int i = 0; i < N; i++) {
-        printf("%c ", arr[i]);
-    }
-    printf("\n");
+    printf("\n Please enter the maximum size of the string:");
+    scanf("%d", &n);
+    getchar(); // \n لحذف الـ 
 
-    // Test ReverseString
-    char strToReverse[] = "Hello";
-    printf("Original string: %s\n", strToReverse);
-    ReverseString(strToReverse, strToReverse + strlen(strToReverse) - 1);
-    printf("Reversed string: %s\n", strToReverse);
+    str = LoadString(n);
+    int len = StringLength(str);
 
-    // Free allocated memory
-    free(myString);
+    char arr[len + 1], rev[len + 1];
 
+    LoadArray(str, arr);
+
+    printf("Original array:");
+    DisplayArray(arr, len);
+
+    ReverseArray(arr, rev, len);
+    printf("Reversed array:");
+    DisplayArray(rev, len);
+
+    int sum = SumStringASCII(str);
+    printf("Sum of ASCII values (recursive): %d\n", sum);
+
+    ReverseString(str, str + len - 1);
+    printf("String reversed recursively: %s\n", str);
+
+    free(str);
     return 0;
 }
