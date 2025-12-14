@@ -1,0 +1,150 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <ctype.h>
+#include <string.h>
+
+// Stack Node
+typedef struct SNode {
+    char data;
+    struct SNode *next;
+} SNode;
+
+// Queue Node
+typedef struct QNode {
+    char data;
+    struct QNode *next;
+} QNode;
+
+// Queue structure (using single pointers in struct)
+typedef struct {
+    QNode *front;
+    QNode *rear;
+} Queue;
+
+// ---------- Stack Functions ----------
+
+// Push function: returns the new top of the stack
+SNode* push(SNode *top, char ch) {
+    SNode *newNode = (SNode*)malloc(sizeof(SNode));
+    if (!newNode) {
+        printf("Memory allocation failed for stack node!\n");
+        exit(EXIT_FAILURE);
+    }
+    newNode->data = ch;
+    newNode->next = top;
+    return newNode; // new top
+}
+
+// Pop function: returns the new top and stores popped value via pointer
+SNode* pop(SNode *top, char *value) {
+    if (top == NULL) {
+        printf("Stack is empty!\n");
+        exit(EXIT_FAILURE);
+    }
+    SNode *temp = top;
+    *value = top->data;
+    top = top->next;
+    free(temp);
+    return top; // new top
+}
+
+// ---------- Queue Functions ----------
+
+// Initialize queue
+void initQueue(Queue *q) {
+    q->front = q->rear = NULL;
+}
+
+// Enqueue function (add to rear)
+void enqueue(Queue *q, char ch) {
+    QNode *newNode = (QNode*)malloc(sizeof(QNode));
+    if (!newNode) {
+        printf("Memory allocation failed for queue node!\n");
+        exit(EXIT_FAILURE);
+    }
+    newNode->data = ch;
+    newNode->next = NULL;
+    if (q->rear == NULL) { // empty queue
+        q->front = q->rear = newNode;
+    } else {
+        q->rear->next = newNode;
+        q->rear = newNode;
+    }
+}
+
+// Dequeue function (remove from front)
+char dequeue(Queue *q) {
+    if (q->front == NULL) {
+        printf("Queue is empty!\n");
+        exit(EXIT_FAILURE);
+    }
+    QNode *temp = q->front;
+    char ch = temp->data;
+    q->front = q->front->next;
+    if (q->front == NULL) {
+        q->rear = NULL;
+    }
+    free(temp);
+    return ch;
+}
+
+// Check if queue is empty
+int isQueueEmpty(Queue *q) {
+    return (q->front == NULL);
+}
+
+// ---------- Main Logic ----------
+int main() {
+    char input[1000];
+    printf("Enter a string: ");
+    fgets(input, sizeof(input), stdin);
+    input[strcspn(input, "\n")] = 0; // Remove newline
+
+    // Step 1 & 2: Convert to uppercase for uniform comparison
+    for (int i = 0; input[i]; i++) {
+        input[i] = toupper((unsigned char)input[i]);
+    }
+
+    SNode *stackTop = NULL;
+    Queue queue;
+    initQueue(&queue);
+
+    // Step 3: Process each alphabetic character
+    for (int i = 0; input[i]; i++) {
+        if (isalpha((unsigned char)input[i])) { // Ignore spaces and non-alphabetic
+            stackTop = push(stackTop, input[i]);
+            enqueue(&queue, input[i]);
+        }
+    }
+
+    int isPalindrome = 1; // Assume true
+
+    // Step 4: Compare stack pop with queue dequeue
+    while (stackTop != NULL && !isQueueEmpty(&queue)) {
+        char stackChar, queueChar;
+        stackTop = pop(stackTop, &stackChar);
+        queueChar = dequeue(&queue);
+        if (stackChar != queueChar) {
+            isPalindrome = 0;
+            break;
+        }
+    }
+
+    // Step 5: Output result
+    if (isPalindrome) {
+        printf("Palindrome\n");
+    } else {
+        printf("Not Palindrome\n");
+    }
+
+    // Free any remaining nodes (though they should all be freed by now)
+    while (stackTop != NULL) {
+        char dummy;
+        stackTop = pop(stackTop, &dummy);
+    }
+    while (!isQueueEmpty(&queue)) {
+        dequeue(&queue);
+    }
+
+    return 0;
+}
